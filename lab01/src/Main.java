@@ -17,6 +17,9 @@ class MazeGenerator extends JPanel implements KeyListener {
     private final int cols = 20; //столбцы
     private final int cellSize = 20; //клетки
     private final Cell[][] grid = new Cell[rows][cols];
+
+    private boolean[][] passedCells = new boolean[rows][cols];
+
     private boolean isAlive;
     private boolean isPaint;
     private Cell spawnPoint;
@@ -119,11 +122,17 @@ class MazeGenerator extends JPanel implements KeyListener {
                 Cell cell = grid[row][col];
                 int x = col * cellSize;
                 int y = row * cellSize;
-
+                if (passedCells[row][col]) {
+                    g.setColor(Color.YELLOW);
+                    g.fillRect(x, y, cellSize, cellSize);
+                    g.setColor(Color.BLACK);
+                }
                 if (cell.walls[0]) g.drawLine(x, y, x + cellSize, y); // Top
                 if (cell.walls[1]) g.drawLine(x + cellSize, y, x + cellSize, y + cellSize); // Right
                 if (cell.walls[2]) g.drawLine(x, y + cellSize, x + cellSize, y + cellSize); // Bottom
                 if (cell.walls[3]) g.drawLine(x, y, x, y + cellSize); // Left
+
+
             }
         }
 
@@ -131,13 +140,19 @@ class MazeGenerator extends JPanel implements KeyListener {
         if (spawnPoint != null) {
             int spawnX = spawnPoint.col * cellSize + cellSize / 2; // Center of the cell
             int spawnY = spawnPoint.row * cellSize + cellSize / 2; // Center of the cell
-            System.out.println("x"+spawnX+"y"+spawnY);
+            System.out.println("x:" + spawnX + "y:" + spawnY);
             System.out.println("Spawn point (row, col): (" + spawnPoint.row + ", " + spawnPoint.col + ")");
             g.setColor(Color.RED);
-            g.fillOval(spawnX - 5, spawnY - 5, 10, 10); // Draw a red circle for the robot
-            if (isAlive)g.setColor(Color.GREEN);
+            g.fillOval(spawnX - 5, spawnY - 5, 10, 10); 
+            if (isAlive) g.setColor(Color.GREEN);
             g.fillOval(spawnX - 5, spawnY - 5, 10, 10);
-            if (isPaint) g.fillRect(spawnPoint.col * cellSize, spawnPoint.row * cellSize, cellSize, cellSize);//g.fillRect(spawnPoint.col, spawnPoint.row, cellSize, cellSize);
+            g.setColor(Color.YELLOW);
+
+            /*if (isPaint) {
+
+                g.fillRect(spawnPoint.col * cellSize, spawnPoint.row * cellSize, cellSize, cellSize);//g.fillRect(spawnPoint.col, spawnPoint.row, cellSize, cellSize);
+
+            }*/
         }
     }
 
@@ -149,27 +164,35 @@ class MazeGenerator extends JPanel implements KeyListener {
         int row = spawnPoint.row;
         int col = spawnPoint.col;
         char key = e.getKeyChar();
-        if (key == 'g')isAlive=true;
-        if (key == 'h')isPaint=true;
+        byte iz=0;
+        if (key == 'g')isAlive = !isAlive;
+
+        if (key == 'h' & isAlive)isPaint=true;
+
         if(isAlive) {
             switch (keyCode) {
                 case KeyEvent.VK_UP:
                     if (row > 0 && !spawnPoint.walls[0] && !grid[row - 1][col].walls[2]) {
+                        passedCells[spawnPoint.row][spawnPoint.col] = true;
                         spawnPoint = grid[row - 1][col];
                     }
                     break;
                 case KeyEvent.VK_DOWN:
                     if (row < rows - 1 && !spawnPoint.walls[2] && !grid[row + 1][col].walls[0]) {
+                        passedCells[spawnPoint.row][spawnPoint.col] = true;
                         spawnPoint = grid[row + 1][col];
                     }
                     break;
+
                 case KeyEvent.VK_LEFT:
                     if (col > 0 && !spawnPoint.walls[3] && !grid[row][col - 1].walls[1]) {
+                        passedCells[spawnPoint.row][spawnPoint.col] = true;
                         spawnPoint = grid[row][col - 1];
                     }
                     break;
                 case KeyEvent.VK_RIGHT:
                     if (col < cols - 1 && !spawnPoint.walls[1] && !grid[row][col + 1].walls[3]) {
+                        passedCells[spawnPoint.row][spawnPoint.col] = true;
                         spawnPoint = grid[row][col + 1];
                     }
                     break;
@@ -222,6 +245,7 @@ class MazeGenerator extends JPanel implements KeyListener {
         MazeGenerator mazePanel = new MazeGenerator();
         frame.add(mazePanel);
         frame.pack();
+        frame.setSize(600,440);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
 
