@@ -3,19 +3,22 @@ import java.awt.Graphics;
 import java.awt.Dimension;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.xml.crypto.dsig.keyinfo.KeyValue;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
+import static java.lang.System.out;
 
 class MazeGenerator extends JPanel implements KeyListener {
     private final int rows = 20; //строки
     private final int cols = 20; //столбцы
     private final int cellSize = 20; //клетки
     private final Cell[][] grid = new Cell[rows][cols];
-
+    private boolean isAlive;
+    private boolean isPaint;
     private Cell spawnPoint;
 
     public MazeGenerator() {
@@ -23,7 +26,8 @@ class MazeGenerator extends JPanel implements KeyListener {
         initializeGrid(); // заполнение сетки
         generateMaze(); // генерация логики лабиринта
         SpawnPoint(5, 5);
-
+        isAlive = false;
+        isPaint = false;
         // Make the panel focusable and add the key listener
         setFocusable(true);
         requestFocusInWindow();
@@ -77,11 +81,11 @@ class MazeGenerator extends JPanel implements KeyListener {
     }
     /**Если current находится справа от next, это значит, что мы должны убрать правую стену у current и левую стену у next.
      * <P>
-    *Если current находится слева от next, убираем левую стену у current и правую стену у next.
+     *Если current находится слева от next, убираем левую стену у current и правую стену у next.
      * <P>
-    *Если current находится ниже next, убираем нижнюю стену у current и верхнюю стену у next.
+     *Если current находится ниже next, убираем нижнюю стену у current и верхнюю стену у next.
      * <P>
-    *Если current находится выше next, убираем верхнюю стену у current и нижнюю стену у next.
+     *Если current находится выше next, убираем верхнюю стену у current и нижнюю стену у next.
      */
     private void removeWalls(Cell current, Cell next) {
         int dx = current.col - next.col;
@@ -131,6 +135,9 @@ class MazeGenerator extends JPanel implements KeyListener {
             System.out.println("Spawn point (row, col): (" + spawnPoint.row + ", " + spawnPoint.col + ")");
             g.setColor(Color.RED);
             g.fillOval(spawnX - 5, spawnY - 5, 10, 10); // Draw a red circle for the robot
+            if (isAlive)g.setColor(Color.GREEN);
+            g.fillOval(spawnX - 5, spawnY - 5, 10, 10);
+            if (isPaint) g.fillRect(spawnPoint.col * cellSize, spawnPoint.row * cellSize, cellSize, cellSize);//g.fillRect(spawnPoint.col, spawnPoint.row, cellSize, cellSize);
         }
     }
 
@@ -141,30 +148,34 @@ class MazeGenerator extends JPanel implements KeyListener {
         int keyCode = e.getKeyCode();
         int row = spawnPoint.row;
         int col = spawnPoint.col;
+        char key = e.getKeyChar();
+        if (key == 'g')isAlive=true;
+        if (key == 'h')isPaint=true;
+        if(isAlive) {
+            switch (keyCode) {
+                case KeyEvent.VK_UP:
+                    if (row > 0 && !spawnPoint.walls[0] && !grid[row - 1][col].walls[2]) {
+                        spawnPoint = grid[row - 1][col];
+                    }
+                    break;
+                case KeyEvent.VK_DOWN:
+                    if (row < rows - 1 && !spawnPoint.walls[2] && !grid[row + 1][col].walls[0]) {
+                        spawnPoint = grid[row + 1][col];
+                    }
+                    break;
+                case KeyEvent.VK_LEFT:
+                    if (col > 0 && !spawnPoint.walls[3] && !grid[row][col - 1].walls[1]) {
+                        spawnPoint = grid[row][col - 1];
+                    }
+                    break;
+                case KeyEvent.VK_RIGHT:
+                    if (col < cols - 1 && !spawnPoint.walls[1] && !grid[row][col + 1].walls[3]) {
+                        spawnPoint = grid[row][col + 1];
+                    }
+                    break;
 
-        switch (keyCode) {
-            case KeyEvent.VK_UP:
-                if (row > 0 && !spawnPoint.walls[0] && !grid[row - 1][col].walls[2]) {
-                    spawnPoint = grid[row - 1][col];
-                }
-                break;
-            case KeyEvent.VK_DOWN:
-                if (row < rows - 1 && !spawnPoint.walls[2] && !grid[row + 1][col].walls[0]) {
-                    spawnPoint = grid[row + 1][col];
-                }
-                break;
-            case KeyEvent.VK_LEFT:
-                if (col > 0 && !spawnPoint.walls[3] && !grid[row][col - 1].walls[1]) {
-                    spawnPoint = grid[row][col - 1];
-                }
-                break;
-            case KeyEvent.VK_RIGHT:
-                if (col < cols - 1 && !spawnPoint.walls[1] && !grid[row][col + 1].walls[3]) {
-                    spawnPoint = grid[row][col + 1];
-                }
-                break;
+            }
         }
-
         repaint(); // Repaint the panel to update the spawn point's position
     }
 
