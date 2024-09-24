@@ -24,6 +24,8 @@ class MazeGenerator extends JPanel implements KeyListener {
     private boolean isPaint;
     private Cell spawnPoint;
 
+    private Color CellC;
+
     public MazeGenerator() {
         setPreferredSize(new Dimension(cols * cellSize, rows * cellSize)); //размер панели = размеру лабиринта
         initializeGrid(); // заполнение сетки
@@ -35,6 +37,8 @@ class MazeGenerator extends JPanel implements KeyListener {
         setFocusable(true);
         requestFocusInWindow();
         addKeyListener(this);
+        CellC = Color.YELLOW;
+
     }
 
     //заполняет двумерный массив grid объектами Cell, представляя каждую клетку лабиринта.
@@ -123,7 +127,7 @@ class MazeGenerator extends JPanel implements KeyListener {
                 int x = col * cellSize;
                 int y = row * cellSize;
                 if (passedCells[row][col]) {
-                    g.setColor(Color.YELLOW);
+                    g.setColor(CellC);
                     g.fillRect(x, y, cellSize, cellSize);
                     g.setColor(Color.BLACK);
                 }
@@ -143,10 +147,10 @@ class MazeGenerator extends JPanel implements KeyListener {
             System.out.println("x:" + spawnX + "y:" + spawnY);
             System.out.println("Spawn point (row, col): (" + spawnPoint.row + ", " + spawnPoint.col + ")");
             g.setColor(Color.RED);
-            g.fillOval(spawnX - 5, spawnY - 5, 10, 10); 
+            g.fillOval(spawnX - 5, spawnY - 5, 10, 10); // Draw a red circle for the robot
             if (isAlive) g.setColor(Color.GREEN);
             g.fillOval(spawnX - 5, spawnY - 5, 10, 10);
-            g.setColor(Color.YELLOW);
+            g.setColor(CellC);
 
             /*if (isPaint) {
 
@@ -167,32 +171,47 @@ class MazeGenerator extends JPanel implements KeyListener {
         byte iz=0;
         if (key == 'g')isAlive = !isAlive;
 
-        if (key == 'h' & isAlive)isPaint=true;
+        if (key == 'h' & isAlive){
+            isPaint=!isPaint;
+            CellC=Color.YELLOW;
+        }
+
+        if (key == 'c' && isAlive)CellC=Color.BLUE;
+
+
 
         if(isAlive) {
             switch (keyCode) {
                 case KeyEvent.VK_UP:
                     if (row > 0 && !spawnPoint.walls[0] && !grid[row - 1][col].walls[2]) {
-                        passedCells[spawnPoint.row][spawnPoint.col] = true;
+                        if(isPaint) {
+                            passedCells[spawnPoint.row][spawnPoint.col] = true;
+                        }
                         spawnPoint = grid[row - 1][col];
                     }
                     break;
                 case KeyEvent.VK_DOWN:
                     if (row < rows - 1 && !spawnPoint.walls[2] && !grid[row + 1][col].walls[0]) {
-                        passedCells[spawnPoint.row][spawnPoint.col] = true;
+                        if(isPaint) {
+                            passedCells[spawnPoint.row][spawnPoint.col] = true;
+                        }
                         spawnPoint = grid[row + 1][col];
                     }
                     break;
 
                 case KeyEvent.VK_LEFT:
                     if (col > 0 && !spawnPoint.walls[3] && !grid[row][col - 1].walls[1]) {
-                        passedCells[spawnPoint.row][spawnPoint.col] = true;
+                        if(isPaint) {
+                            passedCells[spawnPoint.row][spawnPoint.col] = true;
+                        }
                         spawnPoint = grid[row][col - 1];
                     }
                     break;
                 case KeyEvent.VK_RIGHT:
                     if (col < cols - 1 && !spawnPoint.walls[1] && !grid[row][col + 1].walls[3]) {
-                        passedCells[spawnPoint.row][spawnPoint.col] = true;
+                        if(isPaint) {
+                            passedCells[spawnPoint.row][spawnPoint.col] = true;
+                        }
                         spawnPoint = grid[row][col + 1];
                     }
                     break;
