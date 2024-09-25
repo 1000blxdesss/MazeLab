@@ -119,7 +119,7 @@ class MazeGenerator extends JPanel implements KeyListener {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         g.setColor(Color.BLACK);
-
+        byte ids=0;
         // Draw the maze walls
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
@@ -135,10 +135,20 @@ class MazeGenerator extends JPanel implements KeyListener {
                 if (cell.walls[1]) g.drawLine(x + cellSize, y, x + cellSize, y + cellSize); // Right
                 if (cell.walls[2]) g.drawLine(x, y + cellSize, x + cellSize, y + cellSize); // Bottom
                 if (cell.walls[3]) g.drawLine(x, y, x, y + cellSize); // Left
+                if (row==rows-1 && col==cols-1){
+                    g.setColor(Color.RED);
+                    g.drawLine(x ,y ,x, y + cellSize);
+                }
+
+                out.println("xI:"+x+"yI:"+y);
 
 
             }
+
+
         }
+//        g.setColor(Color.YELLOW);
+//        g.drawLine(5,5, x, y + cellSize);
 
         // Draw the spawn point (robot)
         if (spawnPoint != null) {
@@ -168,14 +178,13 @@ class MazeGenerator extends JPanel implements KeyListener {
         int row = spawnPoint.row;
         int col = spawnPoint.col;
         char key = e.getKeyChar();
-        byte iz=0;
-        if (key == 'g')isAlive = !isAlive;
-
+        if (key == 'g')isAlive = true;
+        if (key == 'j')isAlive = false;
         if (key == 'h' & isAlive){
-            isPaint=!isPaint;
+            isPaint=true;
             CellC=Color.YELLOW;
         }
-
+        if (key == 'k')isPaint=false;
         if (key == 'c' && isAlive)CellC=Color.BLUE;
 
 
@@ -264,7 +273,7 @@ class MazeGenerator extends JPanel implements KeyListener {
         MazeGenerator mazePanel = new MazeGenerator();
         frame.add(mazePanel);
         frame.pack();
-        frame.setSize(600,440);
+        //frame.setSize(600,600);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
 
