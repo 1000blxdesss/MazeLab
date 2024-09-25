@@ -138,9 +138,10 @@ class MazeGenerator extends JPanel implements KeyListener {
                 if (row==rows-1 && col==cols-1){
                     g.setColor(Color.RED);
                     g.drawLine(x ,y ,x, y + cellSize);
+                    g.fillRect(x, x, 20, 20);
                 }
 
-                out.println("xI:"+x+"yI:"+y);
+                //out.println("xI:"+x+"yI:"+y);
 
 
             }
@@ -185,7 +186,14 @@ class MazeGenerator extends JPanel implements KeyListener {
             CellC=Color.YELLOW;
         }
         if (key == 'k')isPaint=false;
-        if (key == 'c' && isAlive)CellC=Color.BLUE;
+        if (key == 'c' && isAlive && isPaint){
+            if (CellC==Color.YELLOW){
+                CellC=Color.BLUE;
+            }
+            else {
+                CellC=Color.YELLOW;
+            }
+        }
 
 
 
